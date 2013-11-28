@@ -18,19 +18,19 @@
                 <div class="page intro" id="page_intro">
                     <div class="header_displacement"></div>
                     <div class="page_content">
-                    <div id="input_name" class="col-xs-12">
-                        <p class="input_name_label">ให้เราเรียกคุณว่า</p>
-                        <input type="text" id="iptName" class="form-control" placeholder="ใส่ชื่อของคุณ">
-                        <p class="input_name_desc"></p>
-                        <div class="alert alert-warning">* คุณสามารถใส่ชื่อปลอมได้ เราจะไม่เก็บข้อมูลส่วนตัวของคุณ การกดปุ่ม "ไปต่อ" แปลว่าคุณได้ยอมรับเงื่อนไขของ YESNOThailand แล้ว
+                        <div id="input_name" class="col-xs-12">
+                            <p class="input_name_label">ให้เราเรียกคุณว่า</p>
+                            <input type="text" id="iptName" class="form-control" placeholder="ใส่ชื่อของคุณ">
+                            <p class="input_name_desc"></p>
+                            <div class="alert alert-warning">* คุณสามารถใส่ชื่อปลอมได้ เราจะไม่เก็บข้อมูลส่วนตัวของคุณ การกดปุ่ม "ไปต่อ" แปลว่าคุณได้ยอมรับเงื่อนไขของ YESNOThailand แล้ว
+                            </div>
+                            <button type="button" id="btn_input_name_continue" class="btn btn-success">
+                            ไปต่อ
+                            <span class="glyphicon glyphicon-ok"></span>
+                            </button>
+                            <p id="agreement"><a href="#">อ่านเงื่อนไข</a></p>
                         </div>
-                        <button type="button" id="btn_input_name_continue" class="btn btn-success">
-                        ไปต่อ
-                        <span class="glyphicon glyphicon-ok"></span>
-                        </button>
-                        <p id="agreement"><a href="#">อ่านเงื่อนไข</a></p>
                     </div>
-                </div>
                 </div>
                 <div class="page logged" id="page_news">
                     <div class="header_displacement"></div>
@@ -46,7 +46,23 @@
                 </div>
                 <div class="page logged" id="page_about">
                     <div class="header_displacement"></div>
-                    <div class="page_content">อื่นๆ</div>
+                    <div class="page_content">
+                        <button id="resetStorage">debug: reset localstorage</button>
+                        <div class="alert alert-success">
+                            <h4><span class="glyphicon glyphicon-asterisk icon_credit"></span> ขอเล่าซักนิด</h4>
+                            <p>เยส/โน ไทยแลนด์ (YES/NO Thailand) เกิดขึ้นจากความเชื่อที่ ว่า การเรียนรู้ข่าวสารจากรอบด้าน การแสดงความคิดเห็น และการยอมรับความคิดเห็นที่แตกต่างเป็นแนวทางการสร้างสังคมที่สร้างสรรค์ 
+                            เราเชื่อว่าการใช้สื่อแแพพลิเคชั่นเพื่อเข้าถึงตัวบุคคล เพื่อเผยแพร่ข่าวจากหลายฝ่าย หลายสำนัก และเพื่อสอบถามความคิดเห็น สามารถทำให้เราเรียนรู้ถึงข้อมูลที่ละเอียดอ่อนที่ไม่อาจหาได้จากสื่อทั่วไป มาร่วมเป็นส่วนหนึ่งของการสร้างสังคมไทยที่สร้างสรรค์กันครับ</p>
+                        </div>
+                        <div class="alert alert-info">
+                        <h4><span class="glyphicon glyphicon-heart icon_credit"></span> อื่นๆ</h4>
+                        <p>สากกะบือยันเรือรบโดย อาพร พลานุเวช <br>
+                        ติชมแอพพลิเคชั่นนี้โดยการกรอกความคิดเห็นของคุณด้านล่างจักเป็นการขอบพระคุณ <br><br>
+                        <textarea class="form-control" rows="3" placeholder="ยังไม่เปิดใช้งาน" disabled></textarea>
+                        สงวนลิขสิทธิ์ ๒๕๕๖ 
+                        </p>
+                        </div>
+                        <br><br><br><br>
+                    </div>
                 </div>
             </section>
         </div>
@@ -79,7 +95,7 @@
         <script src="js/vendor/bootstrap.min.js"></script>
         <script src="js/vendor/fastclick.min.js"></script>
         <script src="http://www.parsecdn.com/js/parse-1.2.13.min.js"></script>
-        <script type="text/javascript" src="phonegap.js"></script>
+        <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
     </body>
 </html>

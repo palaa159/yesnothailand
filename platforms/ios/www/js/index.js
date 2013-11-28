@@ -17,7 +17,26 @@ var phonegap = {
     onDeviceReady: function() {
         // get location
         alert('device ready');
+        navigator.geolocation.getCurrentPosition(this.onSuccess, this.onError);
     },
+    onSuccess: function(position) {
+        user.geo = [position.coords.latitude, position.coords.longitude];
+    alert('Latitude: '          + position.coords.latitude          + '\n' +
+          'Longitude: '         + position.coords.longitude         + '\n' +
+          'Altitude: '          + position.coords.altitude          + '\n' +
+          'Accuracy: '          + position.coords.accuracy          + '\n' +
+          'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
+          'Heading: '           + position.coords.heading           + '\n' +
+          'Speed: '             + position.coords.speed             + '\n' +
+          'Timestamp: '         + position.timestamp                + '\n');
+    },
+
+// onError Callback receives a PositionError object
+//
+    onError: function(error) {
+    alert('code: '    + error.code    + '\n' +
+          'message: ' + error.message + '\n');
+}
 
 };
 
@@ -42,31 +61,57 @@ var app = {
         $('#ajaxLoader').fadeOut('fast');
     },
     scrollToPage: function(x) {
+        // fade all pages
+        $('.page').css({
+            opacity: 0
+        });
+        // app.hideAllLogged();
         $('html, body').animate({
+            scrollTop:0,
             scrollLeft: $('#' + x).offset().left
         }, 300);
         // enable, mute menu
         $('.menu_icon').removeClass('menu_active');
         $('#menu_' + x).addClass('menu_active');
         // activepage
+        if (x == 'page_news') {
+            app.activateNews();
+        }
         if (x == 'page_vote') {
+            // show page_vote
             app.activateVote();
+        }
+        if (x == 'page_about') {
+            // show page_vote
+            app.activateAbout();
         }
     },
     activateNews: function() {
-
+        console.log('activate news');
+        $('#page_news').animate({
+            opacity: 1
+        });
     },
     activateVote: function() {
+        console.log('activate vote');
+        $('#page_vote').animate({
+            opacity: 1
+        });
         this.ajaxLoad();
         parse.checkForNewEvents();
+    },
+    activateAbout: function() {
+        $('#page_about').animate({
+            opacity: 1
+        });
     },
     activateMenu: function() {
         $('.menu_icon').click(function() {
             app.scrollToPage($(this).attr('id').substring(5, $(this).attr('id').length));
         });
     },
-    hideAllPages: function() {
-        $('.page').hide();
+    hideAllLogged: function() {
+        $('.logged').hide();
     },
     showAllLogged: function() {
         $('.logged').show();
@@ -108,13 +153,13 @@ var app = {
                 // check if name is correct
                 // WE GOT NEW USER
                 if ($('#iptName').val().length >= 3) {
-                    var name = $('#iptName').val();
-                    console.log(name);
+                    user.name = $('#iptUser').val();
+                    console.log(user.name);
                     // add to localstorage
-                    app.storage.setItem('user', name);
+                    app.storage.setItem('user', user.name);
                     // get MAC address
                     var mac = 'fa:ke:ma:c0';
-                    var geo = [-45, 33];
+                    var geo = user.geo;
                     // store user
                     app.storeUser(mac, name, geo);
                     // submit name and geolocation to parse
@@ -135,8 +180,11 @@ var app = {
 var user = {
     name: null,
     mac: null,
+    geo: [],
     eventAnswered: null
 };
+
+var loadedEvent = [];
 
 var parse = {
     conn_users: null,
@@ -186,8 +234,12 @@ var parse = {
         this.conn_events.fetch({
             success: function(data) {
                 app.ajaxUnload();
-                console.log(data.attributes.results);
-                console.log(data.attributes.name);
+                var eventList = data.attributes.results;
+                eventList.each(function(i, v) {
+                    if(loadedEvent.match(v.name) !== v.name)
+                        loadedEvent.push(v.name);
+                });
+                
             },
             error: function(data, error) {
                 console.log(error);
@@ -195,9 +247,17 @@ var parse = {
         });
     }
 };
-
+// disable scroll
+window.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+});
 parse.init();
 app.fastClick();
 app.init();
 
 app.log('hello hacker :)');
+
+// debug
+$('#resetStorage').click(function() {
+    app.storage.clear();
+});
