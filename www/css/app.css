@@ -1,0 +1,132 @@
+/*font*/
+
+@font-face {
+    font-family: 'asg';
+    src: url('font/asg.ttf');
+    font-weight: 100;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+}
+
+body {
+    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+    -webkit-user-select: none;   
+    background: white;
+}
+
+#ajaxLoader {
+    background: url('../img/ajax-loader.gif');
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+    position: fixed;
+    top: calc(50% - 12px);
+    left: calc(50% - 12px);
+    display: none;
+    z-index: 10;
+}
+
+.header_style {
+    position: fixed;
+    top:0;
+    z-index: 9;
+    width: 100%;
+    text-align: center;
+    height: 60px;
+    background: rgba(7,255,151,0.8);
+    box-shadow: 0px 1px 5px #dadada;
+}
+
+.header_text_style {
+    font-family: 'asg';
+    font-weight: 100;
+    font-size: 3em;
+    padding-top: 10px;
+    color: #fff;
+}
+
+.header_displacement {
+    margin-top: 80px;
+}
+
+#input_name {
+    margin: 0 auto;
+}
+
+.input_name_desc {
+    font-size: 0.7em;
+}
+
+#footer > div {
+    display: inline-block;
+    padding: 5px;
+}
+
+.footer_style {
+    position: fixed;
+    bottom:0;
+    z-index: 9;
+    width: 100%;
+    text-align: center;
+    height: 50px;
+    background: rgba(0,0,0,0.7);
+    box-shadow: 0px 1px 5px #888888;
+}
+
+.menu_white {
+    font-size: 1.6em;
+    color: #fff;
+}
+
+.menu_text {
+    font-family: 'asg';
+    font-weight: 100;
+    font-size: 1.3em;
+    color: white;
+    margin-top: -6px;
+}
+
+.menu_icon {
+    margin: 0px 20px;
+    opacity: 0.3;
+}
+
+.menu_active {
+    opacity: 1;
+}
+
+#pages {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /*left: -50px;*/
+    display: inline-block;
+}
+
+.page {
+    position: absolute;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.page_content {
+    padding: 0px 20px;
+}
+
+#page_news {
+
+}
+
+#page_vote {
+    
+}
+
+#page_about {
+    
+}

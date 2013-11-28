@@ -1,0 +1,6 @@
+2013-11-28 10:15:11.335 yesnothailand[14825:80b] Multi-tasking -> Device: YES, App: YES
+2013-11-28 10:15:11.403 yesnothailand[14825:80b] Unlimited access to network resources
+2013-11-28 10:15:12.304 yesnothailand[14825:80b] active
+2013-11-28 10:15:12.622 yesnothailand[14825:80b] Resetting plugins due to page load.
+2013-11-28 10:15:15.777 yesnothailand[14825:80b] Finished load of: file:///Users/Palanuwech/Library/Application%20Support/iPhone%20Simulator/7.0.3/Applications/0FF9438D-7449-435B-9703-859D2B81A0A0/yesnothailand.app/www/index.html
+2013-11-28 10:15:48.793 yesnothailand[14825:4003] void SendDelegateMessage(NSInvocation *): delegate (webView:runJavaScriptAlertPanelWithMessage:initiatedByFrame:) failed to return after waiting 10 seconds. main run loop mode: kCFRunLoopDefaultMode
