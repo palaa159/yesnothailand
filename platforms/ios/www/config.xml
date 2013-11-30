@@ -8,7 +8,7 @@
         YES/NO Team
     </author>
     <content src="index.html" />
-    <access origin="*" />
+    <access origin="*" subdomains="true" />
     <preference name="orientation" value="portrait" />
     <preference name="target-device" value="phone" />
     <preference name="DisallowOverscroll" value="true" />
@@ -25,4 +25,20 @@
     <icon src="icon.png" />
     <preference name="fullscreen" value="true" />
     <preference name="webviewbounce" value="true" />
+
+    <feature name="Device">
+        <param name="ios-package" value="CDVDevice" />
+    </feature>
+    <feature name="NetworkStatus">
+        <param name="ios-package" value="CDVConnection" />
+    </feature>
+    <feature name="Notification">
+        <param name="ios-package" value="CDVNotification" />
+    </feature>
+    <feature name="Geolocation">
+        <param name="ios-package" value="CDVLocation" />
+    </feature>
+    <feature name="InAppBrowser">
+    <param name="ios-package" value="CDVInAppBrowser" />
+</feature>
 </widget>

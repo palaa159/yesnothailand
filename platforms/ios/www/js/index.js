@@ -1,3 +1,10 @@
+var user = {
+    username: null,
+    mac: null,
+    geo: [],
+    eventAnswered: []
+};
+
 var phonegap = {
     // Application Constructor
     initialize: function() {
@@ -16,28 +23,30 @@ var phonegap = {
     // function, we must explicity call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         // get location
-        alert('device ready');
-        navigator.geolocation.getCurrentPosition(this.onSuccess, this.onError);
-    },
-    onSuccess: function(position) {
-        user.geo = [position.coords.latitude, position.coords.longitude];
-    alert('Latitude: '          + position.coords.latitude          + '\n' +
-          'Longitude: '         + position.coords.longitude         + '\n' +
-          'Altitude: '          + position.coords.altitude          + '\n' +
-          'Accuracy: '          + position.coords.accuracy          + '\n' +
-          'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
-          'Heading: '           + position.coords.heading           + '\n' +
-          'Speed: '             + position.coords.speed             + '\n' +
-          'Timestamp: '         + position.timestamp                + '\n');
-    },
+        // alert('UUID' + device.uuid);
+        user.mac = device.uuid;
+        //get uuid
+        var onSuccess = function(position) {
+            user.geo = [position.coords.latitude, position.coords.longitude];
+            // alert('Latitude: ' + position.coords.latitude + '\n' +
+            //     'Longitude: ' + position.coords.longitude + '\n' +
+            //     'Altitude: ' + position.coords.altitude + '\n' +
+            //     'Accuracy: ' + position.coords.accuracy + '\n' +
+            //     'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
+            //     'Heading: ' + position.coords.heading + '\n' +
+            //     'Speed: ' + position.coords.speed + '\n' +
+            //     'Timestamp: ' + position.timestamp + '\n');
+        };
 
-// onError Callback receives a PositionError object
-//
-    onError: function(error) {
-    alert('code: '    + error.code    + '\n' +
-          'message: ' + error.message + '\n');
-}
+        // onError Callback receives a PositionError object
+        //
 
+        function onError(error) {
+            alert('code: ' + error.code + '\n' +
+                'message: ' + error.message + '\n');
+        }
+        navigator.geolocation.getCurrentPosition(onSuccess, onError);
+    }
 };
 
 phonegap.initialize();
@@ -69,7 +78,7 @@ var app = {
         $('html, body').animate({
             scrollTop:0,
             scrollLeft: $('#' + x).offset().left
-        }, 300);
+        }, 3);
         // enable, mute menu
         $('.menu_icon').removeClass('menu_active');
         $('#menu_' + x).addClass('menu_active');
@@ -88,15 +97,15 @@ var app = {
     },
     activateNews: function() {
         console.log('activate news');
+        // remove twitter banner
+        $('.timeline-header').css('display', 'none');
         $('#page_news').animate({
             opacity: 1
         });
     },
     activateVote: function() {
         console.log('activate vote');
-        $('#page_vote').animate({
-            opacity: 1
-        });
+        // background
         this.ajaxLoad();
         parse.checkForNewEvents();
     },
@@ -119,9 +128,9 @@ var app = {
     checkInternet: function() {
 
     },
-    storeUser: function(name, mac, geo) {
-        user.name = name;
+    storeUser: function(mac, name, geo) {
         user.mac = mac;
+        user.username = name;
         user.geo = geo;
     },
     init: function() {
@@ -139,7 +148,7 @@ var app = {
         // check if app has collected name (and location)
         if (this.storage.getItem('user') !== null) {
             // retrieve data from parse
-            parse.queryReturnUserAndIncrement('Users', 'fa:ke:ma:c0');
+            parse.queryReturnUserAndIncrement('Users', user.mac);
             // store in user object
             // increment appCounter
             // parse.query();
@@ -153,17 +162,14 @@ var app = {
                 // check if name is correct
                 // WE GOT NEW USER
                 if ($('#iptName').val().length >= 3) {
-                    user.name = $('#iptUser').val();
-                    console.log(user.name);
+                    user.username = $('#iptName').val();
+                    alert('name: ' + user.username + '\nuuid: ' + user.mac);
                     // add to localstorage
-                    app.storage.setItem('user', user.name);
-                    // get MAC address
-                    var mac = 'fa:ke:ma:c0';
-                    var geo = user.geo;
+                    app.storage.setItem('user', user.username);
                     // store user
-                    app.storeUser(mac, name, geo);
+                    app.storeUser(user.mac, user.username, user.geo);
                     // submit name and geolocation to parse
-                    parse.submitNewUser(mac, name, geo, 1);
+                    parse.submitNewUser(user.mac, user.username, user.geo, 1);
                     // proceed to homepage
                     app.scrollToPage('page_news');
                     // destroy intro page
@@ -177,14 +183,75 @@ var app = {
     }
 };
 
-var user = {
-    name: null,
-    mac: null,
-    geo: [],
-    eventAnswered: null
+var vote = {
+    events: [],
+    unAnsweredEvent: [],
+    init: function(events) {
+        // clear unAnsweredEvent
+        this.unAnsweredEvent = [];
+        this.events = events;
+        // check event ID if new
+        var answeredEvent = user.eventAnswered;
+        // console.log(answeredEvent);
+        for(var i=0;i<events.length;i++) {
+            // console.log(events[i].name);
+            if(answeredEvent == undefined || answeredEvent.toString().indexOf(events[i].name) == -1) { // if event not exist in user data
+                // then push to unAnsweredEvent
+                vote.unAnsweredEvent.push(events[i]);
+            }
+        }
+        console.log('user have answered: ' + user.eventAnswered);
+        console.log('user have unanswered: ' + JSON.stringify(vote.unAnsweredEvent));
+        if(this.unAnsweredEvent.length > 0) {
+            this.loadUnanswered(0);
+        } else {
+            this.loadAllAnswered();
+        }
+    },
+    loadUnanswered: function(seq) {
+        // alert('starting seq ' + seq);
+        // reset yes/no
+        $('#vote_yes').css('opacity', 0.7);
+        $('#vote_no').css('opacity', 0.7);
+        // templating
+        $('#vote_description').html(this.unAnsweredEvent[seq].desc);
+        $('#vote_image img').attr('src', this.unAnsweredEvent[seq].img._url);
+        // show page
+        $('#page_vote').animate({
+            opacity: 1
+        });
+        // selecting yes/no
+        $('#vote_yes').click(function() {
+            $('#vote_yes').css('opacity', 1);
+            parse.submitAnswer(seq, vote.unAnsweredEvent[seq].name, 1);
+        });
+        $('#vote_no').click(function() {
+            $('#vote_no').css('opacity', 1);
+            parse.submitAnswer(seq, vote.unAnsweredEvent[seq].name, 0);
+        });
+    },
+    loadAllAnswered: function() {
+        $('#vote_template').hide();
+        // load all answered event
+        var text;
+        // clear list_answered
+        $('#list_answered').html('');
+        $.each(user.eventAnswered, function(i, v) {
+            if(v[1] == 1) {
+                text = 'คุณ เอา ' + v[0] + '<br>';
+            } else {
+                text = 'คุณ ไม่เอา ' + v[0] + '<br>';
+            }
+            $('#list_answered').append(text);
+        });
+        $('#no_new_event').show();
+        // show page
+        $('#page_vote').animate({
+            opacity: 1
+        });
+        console.log('you have answered all. what a jerk!');
+    }
 };
-
-var loadedEvent = [];
 
 var parse = {
     conn_users: null,
@@ -201,16 +268,36 @@ var parse = {
         this.q_users = new Parse.Query(conn_users);
         this.q_events = new Parse.Query(conn_events);
     },
+    submitAnswer: function(seq, ename, ans) {
+        this.q_users.equalTo("mac", user.mac);
+        this.q_users.first({
+            success: function(result) {
+                result.addUnique("event_answered", [ename, ans]);
+                result.save();
+                console.log('parse submitted: ' + ename + ans);
+                // append to user.eventAnswered
+                user.eventAnswered.push([ename, ans]);
+                // alert('parse success, although unAnsweredEvent length: ' + vote.unAnsweredEvent.length);
+                // check if there is an event left
+                if(seq == vote.unAnsweredEvent.length-1) {
+                    // all answered
+                    vote.loadAllAnswered();
+                } else {
+                    vote.loadUnanswered(seq + 1);
+                }
+            }
+        });
+    },
     queryReturnUserAndIncrement: function(table, object) {
         if (table == 'Users') {
             this.q_users.equalTo("mac", object);
             this.q_users.first({
                 success: function(result) {
-                    user.name = result.attributes.name;
+                    user.username = result.attributes.name;
                     user.mac = result.attributes.mac;
                     user.eventAnswered = result.attributes.event_answered;
+                    alert('parse: ' + user.username + user.mac + user.eventAnswered);
                     // increment app counter
-
                 }
             });
         }
@@ -223,10 +310,10 @@ var parse = {
             counter: 1
         }, {
             success: function(object) {
-                console.log('parse: success');
+                alert('parse: success');
             },
             error: function(model, error) {
-                console.log('parse: failed');
+                alert('parse: failed');
             }
         });
     },
@@ -235,11 +322,7 @@ var parse = {
             success: function(data) {
                 app.ajaxUnload();
                 var eventList = data.attributes.results;
-                eventList.each(function(i, v) {
-                    if(loadedEvent.match(v.name) !== v.name)
-                        loadedEvent.push(v.name);
-                });
-                
+                vote.init(eventList);
             },
             error: function(data, error) {
                 console.log(error);
@@ -249,8 +332,10 @@ var parse = {
 };
 // disable scroll
 window.addEventListener('touchmove', function(e) {
-    e.preventDefault();
+    // e.preventDefault();
 });
+
+// initialize app elements
 parse.init();
 app.fastClick();
 app.init();
