@@ -332,7 +332,7 @@ var parse = {
 };
 // disable scroll
 window.addEventListener('touchmove', function(e) {
-    // e.preventDefault();
+    e.preventDefault();
 });
 
 // initialize app elements
