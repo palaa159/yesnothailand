@@ -63,6 +63,7 @@ var app = {
         }, false);
     },
     storage: window.localStorage,
+    alreadyVisualized: false,
     ajaxLoad: function() {
         $('#ajaxLoader').show();
     },
@@ -76,7 +77,7 @@ var app = {
         });
         // app.hideAllLogged();
         $('html, body').animate({
-            scrollTop:0,
+            scrollTop: 0,
             scrollLeft: $('#' + x).offset().left
         }, 3);
         // enable, mute menu
@@ -89,6 +90,10 @@ var app = {
         if (x == 'page_vote') {
             // show page_vote
             app.activateVote();
+        }
+        if (x == 'page_visualize') {
+            // show page_vote
+            app.activateVisualize();
         }
         if (x == 'page_about') {
             // show page_vote
@@ -109,7 +114,21 @@ var app = {
         this.ajaxLoad();
         parse.checkForNewEvents();
     },
+    activateVisualize: function() {
+        $('#page_visualize').animate({
+                opacity: 1
+            });
+        if (app.alreadyVisualized == false) {
+            this.ajaxLoad();
+            // query visualize
+            // connect to parse
+            parse.checkForVisualize();
+            app.alreadyVisualized = true;
+        }
+        // render chart
+    },
     activateAbout: function() {
+        app.ajaxUnload();
         $('#page_about').animate({
             opacity: 1
         });
@@ -125,8 +144,8 @@ var app = {
     showAllLogged: function() {
         $('.logged').show();
     },
-    checkInternet: function() {
-
+    checkInternet: function(err) {
+        alert(err + ' มีบางอย่างผิดพลาด บางทีคุณอาจจะไม่ได้เชื่อมต่อกับอินเตอร์เน็ตก็เป็นได้');
     },
     storeUser: function(mac, name, geo) {
         user.mac = mac;
@@ -134,9 +153,10 @@ var app = {
         user.geo = geo;
     },
     init: function() {
+        // I'm debugging in web
         // app.hideAllPages();
         console.table('init');
-        this.checkInternet();
+        // this.checkInternet();
         // jquery layout pages
         $('.page').each(function(i, elem) {
             console.log(i, elem);
@@ -163,7 +183,7 @@ var app = {
                 // WE GOT NEW USER
                 if ($('#iptName').val().length >= 3) {
                     user.username = $('#iptName').val();
-                    alert('name: ' + user.username + '\nuuid: ' + user.mac);
+                    // alert('name: ' + user.username + '\nuuid: ' + user.mac);
                     // add to localstorage
                     app.storage.setItem('user', user.username);
                     // store user
@@ -193,41 +213,57 @@ var vote = {
         // check event ID if new
         var answeredEvent = user.eventAnswered;
         // console.log(answeredEvent);
-        for(var i=0;i<events.length;i++) {
+        for (var i = 0; i < events.length; i++) {
             // console.log(events[i].name);
-            if(answeredEvent == undefined || answeredEvent.toString().indexOf(events[i].name) == -1) { // if event not exist in user data
+            if (answeredEvent == undefined || answeredEvent.toString().indexOf(events[i].name) == -1) { // if event not exist in user data
                 // then push to unAnsweredEvent
                 vote.unAnsweredEvent.push(events[i]);
             }
         }
         console.log('user have answered: ' + user.eventAnswered);
         console.log('user have unanswered: ' + JSON.stringify(vote.unAnsweredEvent));
-        if(this.unAnsweredEvent.length > 0) {
+        if (this.unAnsweredEvent.length > 0) {
             this.loadUnanswered(0);
         } else {
             this.loadAllAnswered();
         }
     },
-    loadUnanswered: function(seq) {
+    loadUnanswered: function() {
+        // console.log('loading unanswered seq: ' + seq);
         // alert('starting seq ' + seq);
         // reset yes/no
-        $('#vote_yes').css('opacity', 0.7);
-        $('#vote_no').css('opacity', 0.7);
+        $('#vote_yes').css({
+            opacity: 0.7,
+            color: '#000'
+        }).unbind();
+        $('#vote_no').css({
+            opacity: 0.7,
+            color: '#000'
+        }).unbind();
+        // reset style
+        $('#vote_description').hide();
+        $('#vote_image img').hide();
         // templating
-        $('#vote_description').html(this.unAnsweredEvent[seq].desc);
-        $('#vote_image img').attr('src', this.unAnsweredEvent[seq].img._url);
+        $('#vote_description').html(this.unAnsweredEvent[0].desc).fadeIn();
+        $('#vote_image img').attr('src', this.unAnsweredEvent[0].img._url).fadeIn();
         // show page
         $('#page_vote').animate({
             opacity: 1
         });
         // selecting yes/no
-        $('#vote_yes').click(function() {
-            $('#vote_yes').css('opacity', 1);
-            parse.submitAnswer(seq, vote.unAnsweredEvent[seq].name, 1);
+        $('#vote_yes').on('click', function() {
+            $('#vote_yes').css({
+                opacity: 1,
+                color: '#32b237'
+            });
+            parse.submitAnswer(vote.unAnsweredEvent[0].name, 1);
         });
-        $('#vote_no').click(function() {
-            $('#vote_no').css('opacity', 1);
-            parse.submitAnswer(seq, vote.unAnsweredEvent[seq].name, 0);
+        $('#vote_no').on('click', function() {
+            $('#vote_no').css({
+                opacity: 1,
+                color: '#b20e00'
+            });
+            parse.submitAnswer(vote.unAnsweredEvent[0].name, 0);
         });
     },
     loadAllAnswered: function() {
@@ -237,7 +273,7 @@ var vote = {
         // clear list_answered
         $('#list_answered').html('');
         $.each(user.eventAnswered, function(i, v) {
-            if(v[1] == 1) {
+            if (v[1] == 1) {
                 text = 'คุณ เอา ' + v[0] + '<br>';
             } else {
                 text = 'คุณ ไม่เอา ' + v[0] + '<br>';
@@ -253,22 +289,103 @@ var vote = {
     }
 };
 
+var visualize = {
+    list: [],
+    result: [],
+    init: function(visualizeList) {
+        // reset
+        $('.result').remove();
+        this.list = [];
+        this.result = [];
+        // แปรผล
+        // event cell
+        $.each(visualizeList, function(i, v) {
+            visualize.list.push({
+                name: v.name,
+                desc: v.desc,
+                event: v.event
+            });
+            // query user for results, push to result[]
+            parse.queryVisualizeResult(i, v.event);
+            // console.log(v.event);
+        });
+        var listener = setInterval(function() {
+            if (visualize.list.length == visualize.result.length) {
+                // console.log('yessss');
+                app.ajaxUnload();
+                visualize.render();
+                clearInterval(listener);
+            }
+        }, 1000);
+    },
+    render: function() {
+        // console.log(visualize.result);
+        // duplicate viz template
+        $.each(visualize.list, function(i, v) {
+            var all = visualize.result[i].yes + visualize.result[i].no;
+            $('#chart_template')
+                .clone()
+                .attr('id', visualize.list[i].name)
+                .removeClass('template')
+                .addClass('result')
+                .appendTo($('#visualize_content'))
+                .children('#chart_render').attr('id', visualize.list[i].event)
+                .parent()
+                .children('#chart_result')
+                .children('.chart_result_yes').html('<span class="glyphicon glyphicon-thumbs-up icon_viz_yes"></span>' + ' ' + (visualize.result[i].yes / all * 100).toFixed(1) + '%')
+                .parent()
+                .children('.chart_result_no').html('<span class="glyphicon glyphicon-thumbs-down icon_viz_no"></span>' + ' ' + (visualize.result[i].no / all * 100).toFixed(1) + '%')
+                .parent()
+                .children('.chart_result_desc').html(visualize.list[i].desc);
+
+            var ctx = $('#' + visualize.list[i].event)[0].getContext("2d");
+            var data = [{
+                value: visualize.result[i].yes,
+                color: '#3bb24a'
+            }, {
+                value: visualize.result[i].no,
+                color: '#d7141b'
+            }];
+            var myChart = new Chart(ctx).Pie(data, visualize.chartOption);
+        });
+    },
+    chartOption: {
+        segmentShowStroke: true,
+        segmentStrokeColor: "#fff",
+        segmentStrokeWidth: 2,
+        animation: true,
+        animationSteps: 100,
+        animationEasing: "easeOutBounce",
+        animateRotate: true,
+        animateScale: false,
+        onAnimationComplete: null
+    }
+};
+
 var parse = {
     conn_users: null,
     conn_events: null,
+    conn_visualize: null,
     q_users: null,
     q_events: null,
+    q_visualize: null,
     init: function() {
         Parse.initialize("qrx8bPXy1nwdiGYJxDdcnXRSgPtniLJSUDNURv6t", "1SbFR9B3qDvkweyOOYj75aznHm9CDuEaMJ6vPCCj");
+        //
         conn_users = Parse.Object.extend("Users");
         conn_events = Parse.Object.extend("Events");
+        conn_visualize = Parse.Object.extend("Visualize");
+        //
         this.conn_users = new conn_users();
         this.conn_events = new conn_events();
+        this.conn_visualize = new conn_visualize();
         // query instance
         this.q_users = new Parse.Query(conn_users);
         this.q_events = new Parse.Query(conn_events);
+        this.q_visualize = new Parse.Query(conn_visualize);
     },
-    submitAnswer: function(seq, ename, ans) {
+    submitAnswer: function(ename, ans) {
+        // console.log('seq ' + seq + ' received'); // * always restart from seq = 0
         this.q_users.equalTo("mac", user.mac);
         this.q_users.first({
             success: function(result) {
@@ -277,14 +394,31 @@ var parse = {
                 console.log('parse submitted: ' + ename + ans);
                 // append to user.eventAnswered
                 user.eventAnswered.push([ename, ans]);
+                // append user to events class
+                parse.q_events.equalTo('name', ename);
+                parse.q_events.first({
+                    success: function(result) {
+                        // console.log(ans);
+                        // console.log(result);
+                        // if yes
+                        if (ans == 1) {
+                            result.addUnique("whoYes", user.mac);
+                            result.save();
+                        } else if (ans == 0) { // if no
+                            result.addUnique("whoNo", user.mac);
+                            result.save();
+                        }
+                        // pop unansweredEvent
+                        vote.unAnsweredEvent.shift();
+                        console.log('unanswered length: ' + vote.unAnsweredEvent.length);
+                        if (vote.unAnsweredEvent.length == 0) {
+                            vote.loadAllAnswered();
+                        } else {
+                            vote.loadUnanswered();
+                        }
+                    }
+                });
                 // alert('parse success, although unAnsweredEvent length: ' + vote.unAnsweredEvent.length);
-                // check if there is an event left
-                if(seq == vote.unAnsweredEvent.length-1) {
-                    // all answered
-                    vote.loadAllAnswered();
-                } else {
-                    vote.loadUnanswered(seq + 1);
-                }
             }
         });
     },
@@ -296,8 +430,13 @@ var parse = {
                     user.username = result.attributes.name;
                     user.mac = result.attributes.mac;
                     user.eventAnswered = result.attributes.event_answered;
-                    alert('parse: ' + user.username + user.mac + user.eventAnswered);
+                    // alert('parse: ' + user.username + user.mac + user.eventAnswered);
                     // increment app counter
+                    result.increment('counter');
+                    result.save();
+                },
+                error: function(model, err) {
+                    app.checkInternet(err);
                 }
             });
         }
@@ -310,10 +449,10 @@ var parse = {
             counter: 1
         }, {
             success: function(object) {
-                alert('parse: success');
+                // alert('parse: success');
             },
-            error: function(model, error) {
-                alert('parse: failed');
+            error: function(model, err) {
+                app.checkInternet(err);
             }
         });
     },
@@ -324,8 +463,39 @@ var parse = {
                 var eventList = data.attributes.results;
                 vote.init(eventList);
             },
-            error: function(data, error) {
-                console.log(error);
+            error: function(model, err) {
+                app.checkInternet(err);
+            }
+        });
+    },
+    checkForVisualize: function() {
+        this.conn_visualize.fetch({
+            success: function(data) {
+                var visualizeList = data.attributes.results;
+                // console.log('visualize list: ' + visualizeList);
+                visualize.init(visualizeList);
+            },
+            error: function(model, err) {
+                app.checkInternet(err);
+            }
+        });
+    },
+    queryVisualizeResult: function(i, e) {
+        // console.log(e);
+        this.q_events.equalTo("name", e);
+        this.q_events.first({
+            success: function(data) {
+                // console.log(data);
+                var result = data.attributes;
+                // console.log(result);
+                // * read yeses and nos [yes, no];
+                visualize.result.push({
+                    yes: result.whoYes.length,
+                    no: result.whoNo.length
+                });
+            },
+            error: function(model, err) {
+                app.checkInternet(err);
             }
         });
     }

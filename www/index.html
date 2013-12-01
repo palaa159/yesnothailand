@@ -12,7 +12,7 @@
         <div id="app_container">
             <div id="ajaxLoader"></div>
             <section id="header" class="header_style">
-                <p id="header_text" class="header_text_style">เยส/โน ไทยแลนด์</p>
+                <!-- <p id="header_text" class="header_text_style">เยส/โน ไทยแลนด์</p> -->
             </section>
             <section id="pages">
                 <div class="page intro" id="page_intro">
@@ -35,7 +35,7 @@
                 <div class="page logged" id="page_news">
                     <div class="header_displacement"></div>
                     <div class="page_content">
-                        <a class="twitter-timeline" width="100%" height="400" href="https://twitter.com/yesnothailand/media" data-widget-id="406517702363074560">Twitter feed</a>
+                        <a class="twitter-timeline" width="100%" height="400" href="https://twitter.com/yesnothailand/media" data-widget-id="406517702363074560" data-chrome="nofooter noheader noscrollbar">Twitter feed</a>
                     </div>
                 </div>
                 <div class="page logged" id="page_vote">
@@ -72,7 +72,18 @@
                 </div>
                 <div class="page logged" id="page_visualize">
                     <div class="header_displacement"></div>
-                    <div class="page_content">ดูผล</div>
+                    <div id="visualize_content" class="page_content">
+                        <div id="chart_template" class="template">
+                            <canvas id="chart_render" height="50" width="50"></canvas>
+                            <div id="chart_result">
+                                <span class="chart_result_desc"></span>
+                                <br>
+                                <span class="chart_result_yes"></span>
+                                <span class="chart_result_no"></span>
+                            </div>
+                        </div>
+                        จะมีข้อมูลตามมาอีก ใจเย็นๆ
+                    </div>
                 </div>
                 <div class="page logged" id="page_about">
                     <div class="header_displacement"></div>
@@ -114,8 +125,9 @@
         <script src="js/vendor/jquery-2.0.3.min.js"></script>
         <script src="js/vendor/bootstrap.min.js"></script>
         <script src="js/vendor/fastclick.min.js"></script>
+        <script src="js/vendor/Chart.min.js"></script>
+        <script src="js/vendor/parse.min.js"></script>
         <script src="https://platform.twitter.com/widgets.js"></script>
-        <script src="http://www.parsecdn.com/js/parse-1.2.13.min.js"></script>
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
     </body>

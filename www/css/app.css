@@ -29,6 +29,10 @@ h4 {
 /*    font-weight: bold;*/
 }
 
+.template {
+    display: none;
+}
+
 #ajaxLoader {
     background: url('../img/ajax-loader.gif');
     background-repeat: no-repeat;
@@ -48,7 +52,8 @@ h4 {
     width: 100%;
     text-align: center;
     height: 60px;
-    background: rgba(7,255,151,0.8);
+    background: url(../img/logoCover.png) no-repeat;
+    background-size: cover;
     box-shadow: 0px 1px 1px #8c8c8c;
 }
 
@@ -196,6 +201,29 @@ h4 {
 
 .vote_icon {
     font-size: 3em;
+}
+
+.result > * {
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+.chart_result_desc {
+    font-size: 1.3em;
+    font-weight: 400;
+}
+
+.result {
+    margin: 5px 5px;
+    border: 1px dashed #6c707a;
+}
+
+.icon_viz_yes {
+    color: #3bb24a;
+}
+
+.icon_viz_no {
+    color: #d7141b;
 }
 
 .clearfix {
