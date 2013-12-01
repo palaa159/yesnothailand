@@ -23,8 +23,9 @@ var phonegap = {
     // function, we must explicity call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         // get location
-        // alert('UUID' + device.uuid);
+        console.log('UUID' + device.uuid);
         user.mac = device.uuid;
+        app.init();
         //get uuid
         var onSuccess = function(position) {
             user.geo = [position.coords.latitude, position.coords.longitude];
@@ -48,8 +49,6 @@ var phonegap = {
         navigator.geolocation.getCurrentPosition(onSuccess, onError);
     }
 };
-
-phonegap.initialize();
 
 var app = {
     sW: window.innerWidth,
@@ -424,9 +423,11 @@ var parse = {
     },
     queryReturnUserAndIncrement: function(table, object) {
         if (table == 'Users') {
+            // console.log('sending mac ' + object);
             this.q_users.equalTo("mac", object);
             this.q_users.first({
                 success: function(result) {
+                    // console.log(result); 
                     user.username = result.attributes.name;
                     user.mac = result.attributes.mac;
                     user.eventAnswered = result.attributes.event_answered;
@@ -506,9 +507,16 @@ window.addEventListener('touchmove', function(e) {
 });
 
 // initialize app elements
-parse.init();
+phonegap.initialize();
 app.fastClick();
-app.init();
+parse.init();
+
+// if you are using web to debug, run app.init();
+var iOS = /(iPad|iPhone|iPod)/g.test( navigator.userAgent );
+if(iOS == false) {
+    console.log('web debugging');
+    app.init();
+}
 
 app.log('hello hacker :)');
 
